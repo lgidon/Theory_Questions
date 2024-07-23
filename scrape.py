@@ -9,9 +9,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 con = duckdb.connect("theory.db")
-# con.execute(
-#     "CREATE OR REPLACE TABLE Questions (Rowid int, Question VARCHAR, Answer1 VARCHAR, Answer1_value bool, Answer2 VARCHAR, Answer2_value bool, Answer3 VARCHAR, Answer3_value bool, Answer4 VARCHAR, Answer4_value bool, Image VARCHAR, Correct bool, Type VARCHAR);"
-# )
+
 # url = "http://teo.co.il/questions/c1/"
 url = "http://teo.co.il"
 

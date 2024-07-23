@@ -17,6 +17,16 @@ Answers = {
 }
 image_location = ""
 con = duckdb.connect("theory.db")
+
+check = "Select count(*) from information_schema.tables"
+con.execute(check)
+rslt = con.fetchone()
+print(rslt[0])
+if rslt[0] == 0:
+    con.execute(
+        "CREATE OR REPLACE TABLE Questions (Rowid int, Question VARCHAR, Answer1 VARCHAR, Answer1_value bool, Answer2 VARCHAR, Answer2_value bool, Answer3 VARCHAR, Answer3_value bool, Answer4 VARCHAR, Answer4_value bool, Image VARCHAR, Correct bool, Type VARCHAR);"
+    )
+
 root = tb.Window()
 Top = tb.Toplevel()
 style = tb.Style(theme="cyborg")
