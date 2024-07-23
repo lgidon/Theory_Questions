@@ -8,3 +8,9 @@ An interface to prepare for the theoritical driving exam in Israel. The list of 
 
 The interface presents the user with a randomly chosed question which has not previously been answered correctly.
 
+## How to use
+
+Setup venv and download the required repositories (listed in the requirements file).
+Run test.py
+
+On your first run, you will need to load the questions for the relevant licnese, this can take a few minutes.
