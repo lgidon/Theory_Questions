@@ -8,6 +8,8 @@ from ttkbootstrap.tooltip import ToolTip
 
 Done = 0
 All = 0
+wrong_counter = 0
+right_answer = ""
 Question = "  "
 Answers = {
     "Answer1": (1, True),
@@ -31,6 +33,9 @@ root = tb.Window()
 Top = tb.Toplevel()
 style = tb.Style(theme="cyborg")
 light = 1
+
+styl = tb.Style()
+styl.configure('TLabel',  font=('Helvetica', 13), padding=10)
 
 root.title("תאוריה")
 root.iconbitmap("images.ico")
@@ -105,7 +110,8 @@ def style_toggle():
 
 
 def submit():
-
+    global wrong_counter
+    print(ID)
     result = radios.get()
     print(f"This is the result: {result}")
     if result == "empty":
@@ -117,6 +123,7 @@ def submit():
             bootstyle="danger",
         )
         toast.show_toast()
+
     elif result == "True":
         toast = ToastNotification(
             title="תשובה נכונה",
@@ -130,34 +137,37 @@ def submit():
     else:
         toast = ToastNotification(
             title="תשובה לא נכונה",
-            message="נחזור לשאלה בהמשך",
-            duration=3000,
+            message=f"התשובה הנכונה: {right_answer}",
+            duration=5000,
             icon="!",
             bootstyle="warning",
         )
         toast.show_toast()
-
+        wrong_counter +=1
         next_question(False)
 
 
 def next_question(correct):
-    query_questions(combo.get())
-    print(Answers.items())
-    for values, text in Answers.items():
-        print(text[0])
-        radios.update_label(text[0] - 1, values, text[1])
-    QuestionLabel.config(text=Question)
-    q_img.update()
-    radios.deselect()
     if correct:
         update_query = f"Update Questions Set Correct = True where Rowid = {ID}"
         con.execute(update_query)
         statists()
-        tbl.delete_row(
-            0,
-        )
-        tbl.insert_row(values=[Done, All])
-        tbl.load_table_data()
+    print(f"Wrong answers: {wrong_counter}")
+    tbl.delete_row(
+        0,
+    )
+    tbl.insert_row(values=[wrong_counter, Done, All])
+    tbl.load_table_data()
+    query_questions(combo.get())
+
+    for values, text in Answers.items():
+        print(values)
+        radios.update_label(text[0] - 1, values, text[1])
+
+    QuestionLabel.config(text=Question)
+    q_img.update()
+    radios.deselect()
+
 
 
 def statists():
@@ -238,13 +248,14 @@ class r_buttons:
             self.button_labels_list.append(rd_label)
 
     def update_label(self, idx, txt, val):
+        global right_answer
         self.button_labels_list[idx].config(text=txt)
         if val == True:
             self.correct = str(idx + 1)
-
+            right_answer = txt
     def get(self):
         tv = self.v.get()
-        print(f"This is v: {tv}")
+        # print(f"This is v: {Answers[int(tv)]}")
         if tv == "None" or tv == "0":
             result = "empty"
         elif tv == self.correct:
@@ -287,11 +298,12 @@ def reload_questions(type, url):
 
 
 def load_question_window():
+    wrong_counter = 0
     statists()
     tbl.delete_row(
         0,
     )
-    tbl.insert_row(values=[Done, All])
+    tbl.insert_row(values=[wrong_counter, Done, All])
     tbl.load_table_data()
     Top.deiconify()
     print("***")
@@ -321,22 +333,22 @@ submit_btn = tb.Button(Top, text="שלח", command=submit).grid(
 exit_btn = tb.Button(Top, text="יציאה מהשאלון", command=Top.withdraw)
 exit_btn.grid(row=9, columnspan=2)
 
-rd = [(Done, All)]
+rd = [("0", Done, All)]
 
 tbl = Tableview(
     master=Top,
-    coldata=["תשובות נכונות", 'סה"כ שאלות'],
+    coldata=["טעויות בסבב הנוכחי", "תשובות נכונות", 'סה"כ שאלות'],
     rowdata=rd,
     height=1,
-    pagesize=2,
+    pagesize=3,
     autofit=True,
 )
 tbl.grid(row=15, columnspan=2)
 
 
-QuestionLabel = tb.Label(Top, text=rtl(Question), font=("sans", "15", "bold"))
+QuestionLabel = tb.Label(Top, text=rtl(Question), font=("sans", "18", "bold"))
 
-QuestionLabel.grid(row=1, columnspan=2)
+QuestionLabel.grid(row=1, columnspan=2, pady=15)
 radios = r_buttons(Top)
 q_img = image()
 Top.protocol("WM_DELETE_WINDOW", donothing)
